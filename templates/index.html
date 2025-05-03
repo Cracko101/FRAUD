@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Transactions - UPI Fraud Detection{% endblock %}
+
+{% block content %}
+    <div class="content-section col-lg-6 col-md-8 mx-auto">
+        <h2 class="mb-4 text-center">UPLOAD UPI TRANSACTIONS DATASET</h2>
+
+        {% if not artifacts_loaded %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Service Unavailable</h4>
+                <p>Error: Model artifacts could not be loaded. Prediction service is unavailable.</p>
+                <hr>
+                <p class="mb-0">Please check server logs or contact the administrator.</p>
+            </div>
+        {% else %}
+            <p class="text-center text-muted mb-4">Select a CSV file containing transaction data for detection & analysis of Fraudulent Transactions.</p>
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="file" class="form-label">CSV File:</label>
+                    <input type="file" class="form-control" name="file" id="file" accept=".csv" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cogs"></i>  Detect & Analyze Fraudulent Transactions
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

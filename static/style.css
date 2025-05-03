@@ -1,0 +1,391 @@
+/* static/style.css */
+
+/* Define a light color palette using CSS variables */
+:root {
+    --bg-color: #f4f7f6; /* Very light gray/off-white background */
+    --surface-color: #ffffff; /* White for cards/containers */
+    --text-color: #343a40; /* Dark gray text for readability */
+    --heading-color: #0a2463; /* Dark blue for headings */
+    --primary-accent: #3e92cc; /* Bright blue accent */
+    --secondary-accent: #2a9d8f; /* Teal/Green accent */
+    --danger-color: #e76f51; /* Coral/Red for danger/fraud */
+    --warning-color: #f4a261; /* Sandy orange for warning */
+    --info-color: #1d3557; /* Darker blue for info elements */
+    --success-color: #2a9d8f; /* Use secondary accent for success */
+    --border-color: #dee2e6; /* Standard light border color */
+    --muted-color: #6c757d; /* Muted text color */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--heading-color);
+    font-weight: 600;
+}
+
+/* --- Base Layout & Navbar --- */
+.navbar {
+    background-color: var(--surface-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+.navbar-brand {
+    color: var(--heading-color) !important;
+    font-weight: bold;
+}
+.navbar .btn-outline-secondary {
+    color: var(--muted-color);
+    border-color: var(--muted-color);
+}
+.navbar .btn-outline-secondary:hover {
+    color: var(--surface-color);
+    background-color: var(--muted-color);
+}
+
+/* --- Containers & Cards --- */
+.container, .container-fluid {
+    max-width: 1400px; /* Adjust max-width for dashboard */
+}
+
+.content-section {
+    background-color: var(--surface-color);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+.card-header {
+    background-color: #e9ecef;
+    color: var(--heading-color);
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-color);
+    display: flex; /* Align icon and text */
+    align-items: center;
+    gap: 0.5rem; /* Space between icon and text */
+}
+.card-header i { /* Style icons in headers */
+    color: var(--primary-accent);
+}
+
+/* --- Login Page --- */
+.login-container {
+    max-width: 450px;
+    margin: 5rem auto;
+}
+
+/* --- Forms & Buttons --- */
+.form-label {
+    font-weight: 500;
+    color: var(--heading-color);
+}
+
+.form-control {
+    border: 1px solid var(--border-color);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.form-control:focus {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 0.2rem rgba(62, 146, 204, 0.25);
+}
+.form-control[type="search"]::-webkit-search-cancel-button {
+    /* Style the 'x' button in search inputs (optional) */
+    cursor: pointer;
+}
+
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex; /* Align icons and text */
+    align-items: center;
+    gap: 0.35rem; /* Space between icon and text in buttons */
+}
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875em;
+    gap: 0.25rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent);
+    color: #fff;
+}
+.btn-primary:hover {
+    background-color: #357dab;
+    border-color: #357dab;
+}
+.btn-secondary {
+    background-color: var(--muted-color);
+    border-color: var(--muted-color);
+    color: #fff;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+.btn-outline-info { /* For print button */
+    color: var(--info-color);
+    border-color: var(--info-color);
+}
+.btn-outline-info:hover {
+    background-color: var(--info-color);
+    color: #fff;
+}
+
+
+/* --- Alerts --- */
+.alert {
+    border-radius: 0.25rem;
+    border-width: 1px;
+    border-style: solid;
+}
+.alert-success { background-color: #d1e7dd; border-color: #badbcc; color: #0f5132; }
+.alert-danger { background-color: #f8d7da; border-color: #f5c2c7; color: #842029; }
+.alert-warning { background-color: #fff3cd; border-color: #ffecb5; color: #664d03; }
+.alert-info { background-color: #cff4fc; border-color: #b6effb; color: #055160; }
+.alert-heading {
+     color: inherit;
+}
+
+/* --- Dashboard Specific Styles (`results.html`) --- */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+.summary-card .card-title {
+    font-size: 1rem;
+    color: var(--muted-color);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    display: flex; /* Align icon and text */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.summary-card .card-title i {
+    color: var(--primary-accent); /* Icon color */
+}
+.summary-card .summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    display: block;
+    color: var(--heading-color);
+}
+.summary-card .summary-value.text-danger {
+     color: var(--danger-color) !important;
+}
+
+.distribution-card .card-body,
+.fraud-list-card .card-body {
+    padding: 0; /* Remove padding for table */
+}
+.fraud-list-card .card-header {
+     justify-content: space-between; /* Push search to the right */
+}
+
+/* Search input specific style */
+#search-input {
+    max-width: 300px; /* Limit width of search */
+    font-size: 0.9rem;
+}
+#search-feedback {
+    font-size: 0.85rem;
+    color: var(--muted-color);
+    margin-top: 0.5rem;
+    min-height: 1.2em; /* Prevent layout shift when text appears/disappears */
+}
+
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+    color: var(--text-color);
+}
+.table thead th {
+    background-color: #e9ecef;
+    color: var(--heading-color);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.table tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+.table tbody tr:hover {
+    background-color: rgba(62, 146, 204, 0.1);
+}
+.table td {
+    vertical-align: middle;
+    padding: 0.75rem;
+}
+.table-sm td, .table-sm th {
+    padding: 0.5rem;
+}
+
+/* Specific column styling in fraud list */
+.fraud-list-table .amount-col {
+    font-weight: 500;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--danger-color); /* Highlight fraud amount */
+}
+.fraud-list-table .timestamp-col {
+    font-size: 0.9em;
+    color: var(--muted-color);
+    white-space: nowrap;
+}
+.fraud-list-table .description-col {
+    max-width: 250px; /* Adjust width */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+.fraud-list-table .description-col:hover {
+    white-space: normal;
+    overflow: visible;
+    position: relative; /* Allow it to overlay if needed */
+    background-color: var(--surface-color); /* Ensure readability */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Add slight shadow on hover */
+    z-index: 5; /* Bring to front */
+}
+.fraud-list-table .action-col {
+    white-space: nowrap;
+    text-align: center;
+}
+
+
+/* Pagination */
+.pagination {
+    justify-content: center;
+    margin-top: 1.5rem;
+    gap: 0.25rem; /* Add small gap between pagination items */
+}
+.page-item .page-link {
+    color: var(--primary-accent);
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease-in-out;
+}
+.page-item.active .page-link {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent);
+    color: #fff;
+    font-weight: 500;
+}
+.page-item.disabled .page-link {
+    color: var(--muted-color);
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+    cursor: not-allowed;
+}
+.page-item:not(.disabled):not(.active) .page-link:hover {
+    background-color: rgba(62, 146, 204, 0.1);
+    border-color: var(--primary-accent);
+}
+
+
+/* --- MARKED CHANGE: Print Styles --- */
+@media print {
+    body {
+        background-color: #fff !important; /* White background for printing */
+        color: #000 !important; /* Black text */
+        padding-top: 1cm; /* Add margin for printing */
+        padding-bottom: 1cm;
+        font-size: 10pt; /* Adjust base font size for print */
+    }
+
+    /* Hide non-essential elements */
+    .navbar,
+    .dashboard-header,
+    .summary-card,
+    .distribution-card,
+    .card-header input, /* Hide search input */
+    #search-feedback,
+    .pagination,
+    .fraud-list-table thead, /* Optionally hide table header if printing single record details */
+    .fraud-list-table .action-col, /* Hide action column */
+    .alert,
+    .btn { /* Hide all buttons */
+        display: none !important;
+    }
+
+    /* Show only the table rows that are NOT hidden by search (or the single row being printed) */
+    .fraud-list-card,
+    .fraud-list-card .card-body,
+    .table-responsive,
+    .fraud-list-table,
+    .fraud-list-table tbody {
+        display: block !important; /* Ensure table parts are block */
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Style the table for printing */
+    .fraud-list-table {
+        width: 100% !important;
+        border-collapse: collapse !important; /* Ensure borders collapse */
+    }
+    .fraud-list-table th,
+    .fraud-list-table td {
+        border: 1px solid #ccc !important; /* Simple border for print */
+        padding: 0.3rem !important;
+        color: #000 !important; /* Black text for cells */
+        background-color: #fff !important; /* White background */
+        white-space: normal !important; /* Allow text wrapping */
+        overflow: visible !important; /* Ensure all content is visible */
+        max-width: none !important; /* Remove max-width */
+    }
+    .fraud-list-table .amount-col {
+        color: #000 !important; /* Reset amount color for print */
+    }
+    .fraud-list-table .timestamp-col {
+        color: #333 !important; /* Darker gray for timestamp */
+    }
+
+    /* Specific styling if we add a 'printing-this-row' class via JS */
+    .fraud-list-table tbody tr {
+        display: none; /* Hide all rows by default */
+    }
+    .fraud-list-table tbody tr.printing-this-row {
+        display: table-row !important; /* ONLY show the row marked for printing */
+        page-break-inside: avoid; /* Try to keep the row on one page */
+    }
+
+    /* Optional: Add a title before the printed row */
+    .print-title {
+        display: block !important; /* Show only in print */
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    /* Hide print title on screen */
+    @media screen {
+        .print-title {
+            display: none;
+        }
+    }
+}
+/* --- End Print Styles --- */

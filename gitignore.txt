@@ -1,0 +1,9 @@
+# .gitignore
+__pycache__/
+*.pyc
+*~
+/.env
+/venv/
+/instance/
+/uploads/ # Add this to ignore uploaded files
+*.DS_Store

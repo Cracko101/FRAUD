@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}FRAUD DETECTION DASHBAORD{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>FRAUD DETECTION DASHBAORD</h2>
+    {% if summary is not none %} {# Check if summary exists (meaning processing happened) #}
+    <p class="text-muted">Analysis results for the uploaded file.</p>
+    {% elif message %} {# Show specific message if processing failed early (e.g., empty file) #}
+    <p class="text-warning">{{ message }}</p>
+    {% endif %}
+</div>
+
+{# Only show dashboard sections if summary exists (i.e., processing occurred) #}
+{% if summary is not none %}
+    <!-- Summary Cards Section -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card summary-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-receipt"></i> Total Transactions</h5>
+                    <span class="summary-value">{{ summary.total_transactions | default('N/A') }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card summary-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Fraud Detected</h5>
+                    <span class="summary-value text-danger">{{ summary.total_fraud | default('N/A') }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+             <div class="card summary-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-sign"></i> Total Fraud Amount</h5>
+                    {% if summary.total_fraud_amount is not none %}
+                        <span class="summary-value text-danger">₹{{ summary.total_fraud_amount | round(2) }}</span>
+                    {% else %}
+                        <span class="summary-value text-danger">N/A</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+         <div class="col-lg-3 col-md-6 mb-3">
+             <div class="card summary-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-percentage"></i> Fraud Rate</h5>
+                     <span class="summary-value text-danger">{{ summary.fraud_rate_percent | default('N/A') }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribution and Fraud List Section -->
+    <div class="row">
+        <!-- Merchant Distribution Card -->
+        {# Only show distribution if data exists and fraud was found #}
+        {% if summary.merchant_distribution and summary.total_fraud > 0 %}
+        <div class="col-lg-4 mb-4">
+            <div class="card distribution-card h-100">
+                <div class="card-header">
+                    <i class="fas fa-store"></i> Fraud by Merchant Category
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="text-end">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category, count in summary.merchant_distribution.items() %}
+                            <tr>
+                                <td>{{ category | title }}</td>
+                                <td class="text-end">{{ count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Fraudulent Transactions List Card -->
+        {# Adjust column width based on whether distribution card is shown #}
+        <div class="col-lg-{% if summary.merchant_distribution and summary.total_fraud > 0 %}8{% else %}12{% endif %} mb-4">
+             <div class="card fraud-list-card h-100">
+                <div class="card-header">
+                    <span><i class="fas fa-list-ul"></i> Detected Fraudulent Transactions
+                        {% if total_fraud > 0 %}({{ total_fraud }} total){% endif %}
+                    </span>
+                     <!-- MARKED CHANGE: Search Input -->
+                    <input type="search" id="searchInput" class="form-control form-control-sm" placeholder="Search this page..." aria-label="Search transactions on current page">
+                </div>
+                <div class="card-body p-0">
+                    <div id="search-feedback" class="text-muted px-3 pt-2"></div> {# Feedback for search results #}
+                     {% if transactions_on_page %}
+                        <div class="table-responsive">
+                            {# --- MARKED CHANGE: Add specific class and ID to table --- #}
+                            <table id="fraudTable" class="table table-striped table-hover mb-0 fraud-list-table">
+                                <thead>
+                                    <tr>
+                                        {# Display only the specific requested columns #}
+                                        <th>Transaction ID</th>
+                                        <th>User ID</th>
+                                        <th>Merchant ID</th>
+                                        <th>Merchant Category</th>
+                                        <th class="text-end">Amount</th>
+                                        <th>Timestamp</th>
+                                        <th>Description</th>
+                                        <th class="action-col">Actions</th> {# Action column #}
+                                    </tr>
+                                </thead>
+                                {# --- MARKED CHANGE: Add ID to tbody --- #}
+                                <tbody id="fraudTableBody">
+                                    {% for tx in transactions_on_page %}
+                                    <tr>
+                                        {# --- MARKED CHANGE: Add data-* attributes for easier JS access --- #}
+                                        <td data-label="Transaction ID">{{ tx.transaction_id | default('N/A') }}</td>
+                                        <td data-label="User ID">{{ tx.user_id | default('N/A') }}</td>
+                                        <td data-label="Merchant ID">{{ tx.merchant_id | default('N/A') }}</td>
+                                        <td data-label="Merchant Category">{{ tx.merchant_category_code | title | default('N/A') }}</td>
+                                        <td data-label="Amount" class="amount-col">₹{{ tx.amount | round(2) if tx.amount is not none else 'N/A' }}</td>
+                                        <td data-label="Timestamp" class="timestamp-col">{{ tx.timestamp.strftime('%Y-%m-%d %H:%M:%S') if tx.timestamp else 'N/A' }}</td>
+                                        <td data-label="Description" class="description-col" title="{{ tx.description | default('') }}">{{ tx.description | default('N/A') }}</td>
+                                        <td class="action-col">
+                                            {# --- MARKED CHANGE: Print Button --- #}
+                                            <button class="btn btn-sm btn-outline-info print-btn" title="Print this transaction">
+                                                <i class="fas fa-print"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        {% if total_pages > 1 %}
+                        <nav aria-label="Page navigation" class="p-3 border-top">
+                            <ul class="pagination mb-0 justify-content-center">
+                                <!-- First Page -->
+                                <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('index', page=1) }}" aria-label="First">
+                                        <span aria-hidden="true">««</span>
+                                    </a>
+                                </li>
+                                <!-- Previous Page -->
+                                <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('index', page=current_page-1) }}" aria-label="Previous">
+                                        <span aria-hidden="true">«</span>
+                                    </a>
+                                </li>
+                                
+                                <!-- Page Numbers -->
+                                {% set start_page = [current_page - 2, 1] | max %}
+                                {% set end_page = [start_page + 4, total_pages] | min %}
+                                {% if start_page > 1 %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                                
+                                {% for page_num in range(start_page, end_page + 1) %}
+                                    <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('index', page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% endfor %}
+                                
+                                {% if end_page < total_pages %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                                
+                                <!-- Next Page -->
+                                <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('index', page=current_page+1) }}" aria-label="Next">
+                                        <span aria-hidden="true">»</span>
+                                    </a>
+                                </li>
+                                <!-- Last Page -->
+                                <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('index', page=total_pages) }}" aria-label="Last">
+                                        <span aria-hidden="true">»»</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="text-center mt-2">
+                                <small class="text-muted">Showing {{ (current_page - 1) * (ROWS_PER_PAGE|default(10)) + 1 }} to {{ [current_page * (ROWS_PER_PAGE|default(10)), total_fraud]|min }} of {{ total_fraud }} fraudulent transactions</small>
+                            </div>
+                        </nav>
+                        {% endif %}
+
+                    {% elif summary.total_fraud == 0 %}
+                        <div class="alert alert-success m-3" role="alert">
+                            <h4 class="alert-heading"><i class="fas fa-check-circle"></i> Analysis Complete!</h4>
+                            No fraudulent transactions were detected based on the current model and threshold.
+                        </div>
+                     {% else %}
+                        {# Case where processing happened but resulted in no transactions to show (e.g., error state) #}
+                        <p class="text-muted p-3">No fraudulent transaction details to display.</p>
+                    {% endif %}
+                 </div>
+            </div>
+        </div>
+    </div> {# End row #}
+
+    {# --- MARKED CHANGE: Add a hidden div for print formatting --- #}
+    <div id="print-area" style="display: none;">
+         <h3 class="print-title">Fraudulent Transaction Details</h3>
+         <dl id="print-details"></dl>
+    </div>
+
+{% elif message %} {# Display message if summary is None but a message exists (e.g., file empty or error before summary) #}
+    <div class="alert alert-warning" role="alert">
+      {{ message }}
+    </div>
+{% endif %} {# End of check for summary #}
+
+{% endblock %}
+
+
+{# --- MARKED CHANGE: Add JavaScript block for Search and Print --- #}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('fraudTableBody');
+    const feedback = document.getElementById('search-feedback');
+    const rows = tableBody ? tableBody.getElementsByTagName('tr') : [];
+
+    // Client-side Search Functionality
+    if (searchInput && tableBody) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let visibleRowCount = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let match = false;
+                // Search specific columns: Tx ID, User ID, Merchant ID, Desc (adjust indices/selectors if table structure changes)
+                const searchableCells = [cells[0], cells[1], cells[2], cells[6]]; // Indices 0, 1, 2, 6
+
+                for(let j=0; j < searchableCells.length; j++) {
+                    if (searchableCells[j]) { // Check if cell exists
+                         const cellText = searchableCells[j].textContent || searchableCells[j].innerText;
+                         if (cellText.toLowerCase().includes(searchTerm)) {
+                             match = true;
+                             break; // Found a match in this row, no need to check other cells
+                         }
+                    }
+                }
+
+                if (match) {
+                    row.style.display = ''; // Show row
+                    visibleRowCount++;
+                } else {
+                    row.style.display = 'none'; // Hide row
+                }
+            }
+
+            // Update feedback message
+            if (feedback) {
+                if (searchTerm === '') {
+                    feedback.textContent = ''; // Clear feedback if search is empty
+                } else {
+                    feedback.textContent = `Showing ${visibleRowCount} matching transaction(s) on this page.`;
+                }
+            }
+        });
+    }
+
+    // Print Functionality (using Event Delegation)
+    const fraudTable = document.getElementById('fraudTable');
+    if (fraudTable) {
+        fraudTable.addEventListener('click', function(event) {
+            // Find the closest ancestor button with the 'print-btn' class
+            const printButton = event.target.closest('.print-btn');
+
+            if (printButton) {
+                event.preventDefault(); // Prevent default button action if any
+                const rowToPrint = printButton.closest('tr');
+
+                if (rowToPrint) {
+                    // --- METHOD 1: Simple Print with CSS Hiding ---
+                    // Add a temporary class to the row we want to print
+                    rowToPrint.classList.add('printing-this-row');
+
+                    // Trigger the browser's print dialog
+                    window.print();
+
+                    // Remove the class after printing (a slight delay helps)
+                    setTimeout(() => {
+                        rowToPrint.classList.remove('printing-this-row');
+                    }, 500); // 500ms delay
+
+                    // --- METHOD 2: Format Data and Print (More control, but more complex) ---
+                    /*
+                    const printArea = document.getElementById('print-area');
+                    const printDetails = document.getElementById('print-details');
+                    if (printArea && printDetails) {
+                        printDetails.innerHTML = ''; // Clear previous details
+
+                        const cells = rowToPrint.querySelectorAll('td[data-label]'); // Get cells with labels
+                        cells.forEach(cell => {
+                            const label = cell.getAttribute('data-label');
+                            const value = cell.textContent || cell.innerText;
+                            if (label !== 'Actions') { // Exclude actions column
+                                const dt = document.createElement('dt');
+                                dt.textContent = label + ':';
+                                const dd = document.createElement('dd');
+                                dd.textContent = value;
+                                printDetails.appendChild(dt);
+                                printDetails.appendChild(dd);
+                            }
+                        });
+
+                        // Temporarily show print area for printing, then hide
+                        printArea.style.display = 'block';
+                        window.print();
+                        printArea.style.display = 'none';
+                    }
+                    */
+                }
+            }
+        });
+    }
+
+});
+</script>
+{% endblock %}
