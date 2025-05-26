@@ -1,0 +1,11 @@
+[
+    "amount", "transaction_amount_vs_sender_history", "geographic_disparity",
+    "transaction_time_of_day", "receiver_account_age", "receiver_transaction_history",
+    "session_duration", "authentication_attempts", "input_timing_consistency",
+    "app_switching_frequency", "keyboard_input_speed", "input_pause_patterns",
+    "screen_active_time", "background_data_usage", "authentication_attempt_count",
+    "pin_entry_speed", "transaction_velocity", "failed_transaction_count",
+    "handle_similarity_score", "hour", "day_of_week",
+    "merchant_category_code", "session_source", "authorization_method",
+    "transaction_type", "handle_verification_status"
+]
